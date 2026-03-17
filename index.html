@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRONFORGE – Gym & Fitness Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--a:#F5FF40;--a2:#FF4500;--bg:#0b0b0b;--bg2:#131313;--bg3:#1c1c1c;--bg4:#252525;--bd:#2e2e2e;--t:#efefef;--t2:#999;--t3:#555;--g:#22c55e;--red:#ef4444}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font-family:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+
+/* TOAST */
+#toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--bd);color:var(--t);padding:9px 20px;border-radius:40px;font-size:.82rem;font-weight:500;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--g);color:var(--g)}
+#toast.err{border-color:var(--red);color:var(--red)}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:58px;background:rgba(11,11,11,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:3px;cursor:pointer;color:#fff}
+.logo em{color:var(--a);font-style:normal}
+.nav-links{display:flex;gap:2px}
+.nl{padding:7px 13px;font-size:.84rem;font-weight:500;color:var(--t2);border-radius:6px;cursor:pointer;border:none;background:none;transition:all .2s}
+.nl:hover,.nl.on{color:#fff;background:var(--bg3)}
+.nav-r{display:flex;align-items:center;gap:6px}
+.icon-btn{background:none;border:none;color:var(--t2);cursor:pointer;padding:7px;display:flex;align-items:center;border-radius:6px;transition:all .2s}
+.icon-btn:hover{color:#fff;background:var(--bg3)}
+.cart-btn{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--bd);color:#fff;padding:8px 14px;border-radius:7px;cursor:pointer;font-size:.84rem;font-weight:600;position:relative;transition:all .2s}
+.cart-btn:hover{border-color:#444}
+.cbadge{position:absolute;top:-5px;right:-5px;background:var(--a2);color:#fff;font-size:.58rem;font-weight:700;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:7px}
+.burger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
+.mob-menu{display:none;flex-direction:column;gap:4px;position:fixed;top:58px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--bd);padding:1rem;z-index:599}
+.mob-menu.open{display:flex}
+.mob-link{padding:11px 14px;border-radius:7px;color:var(--t2);cursor:pointer;font-size:.92rem;transition:all .2s}
+.mob-link:hover{background:var(--bg3);color:#fff}
+
+/* SEARCH */
+.sov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:700;align-items:flex-start;justify-content:center;padding-top:90px}
+.sov.open{display:flex}
+.sbox{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:1.1rem;width:100%;max-width:540px;margin:0 1rem}
+.srow{display:flex;gap:8px;align-items:center}
+.sinput{flex:1;background:var(--bg3);border:1px solid var(--bd);color:#fff;padding:10px 15px;border-radius:7px;font-size:.95rem;outline:none}
+.sinput:focus{border-color:#555}
+.sclose{background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.4rem;padding:4px 8px}
+.sres{margin-top:.9rem;display:flex;flex-direction:column;gap:5px;max-height:300px;overflow-y:auto}
+.sitem{display:flex;align-items:center;gap:11px;padding:9px;border-radius:7px;cursor:pointer;transition:background .15s}
+.sitem:hover{background:var(--bg3)}
+.simg{width:42px;height:42px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+
+/* PAGES */
+.page{display:none;animation:fi .28s ease}
+.page.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 1.5rem 3rem;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 50% 0%,#1c0a00,var(--bg) 70%)}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.012) 60px),repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.012) 60px);pointer-events:none}
+.hero-pre{font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--a);font-weight:600;margin-bottom:1.2rem}
+.hero-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,13vw,7.5rem);letter-spacing:3px;line-height:.88;color:#fff;margin-bottom:1.4rem}
+.hero-h span{color:var(--a)}
+.hero-sub{font-size:1rem;color:var(--t2);max-width:460px;margin:0 auto 2.5rem;line-height:1.65}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center;margin-top:3.5rem}
+.hs-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--a);letter-spacing:1px}
+.hs-lbl{font-size:.68rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+
+/* SECTIONS */
+.sec{padding:2.5rem 1.5rem;border-bottom:1px solid var(--bd)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem}
+.st{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:2px}
+.sl{font-size:.8rem;color:var(--a);cursor:pointer;font-weight:600}
+.sl:hover{opacity:.8}
+
+/* CATEGORY PILLS */
+.cpills{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;-ms-overflow-style:none;scrollbar-width:none}
+.cpills::-webkit-scrollbar{display:none}
+.cp{flex-shrink:0;padding:7px 17px;border-radius:40px;background:var(--bg3);border:1px solid var(--bd);font-size:.82rem;font-weight:500;cursor:pointer;color:var(--t2);transition:all .2s;white-space:nowrap}
+.cp:hover{border-color:#555;color:#fff}
+.cp.on{background:var(--a);color:#111;border-color:var(--a)}
+
+/* PRODUCT GRID */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:13px}
+.pcard{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;overflow:hidden;cursor:pointer;transition:all .22s;position:relative}
+.pcard:hover{border-color:#444;transform:translateY(-2px)}
+.pcard-img{height:155px;display:flex;align-items:center;justify-content:center;font-size:3.8rem;background:var(--bg3);position:relative}
+.pbadge{position:absolute;top:8px;left:8px;font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.bs{background:var(--a2);color:#fff}
+.bn{background:var(--a);color:#111}
+.bh{background:#ff6b35;color:#fff}
+.pcard-body{padding:11px}
+.pbrand{font-size:.68rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.pname{font-size:.88rem;font-weight:600;color:#fff;margin-bottom:5px;line-height:1.3}
+.prating{display:flex;align-items:center;gap:4px;margin-bottom:5px}
+.pstars{color:#f59e0b;font-size:.72rem}
+.prc{font-size:.68rem;color:var(--t3)}
+.pprow{display:flex;align-items:center;gap:7px}
+.pp{font-size:.98rem;font-weight:700;color:var(--a2)}
+.pp-old{font-size:.75rem;color:var(--t3);text-decoration:line-through}
+.padd{width:100%;background:transparent;border:1px solid var(--bd);color:var(--t2);padding:7px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;margin-top:7px;transition:all .2s;font-family:inherit}
+.padd:hover{background:var(--a2);border-color:var(--a2);color:#fff}
+
+/* PROMO BANNER */
+.promo{background:linear-gradient(135deg,#1c0900,#2a1000);border:1px solid #3a1a08;border-radius:11px;padding:1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.promo h3{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;margin-bottom:4px}
+.promo p{font-size:.84rem;color:var(--t2)}
+.promo-code{background:var(--a);color:#111;padding:3px 11px;border-radius:5px;font-weight:700;font-size:.88rem;letter-spacing:1px;display:inline-block;margin-top:6px}
+
+/* TRUST STRIP */
+.trust-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.trust-item{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:1rem;text-align:center}
+.trust-icon{font-size:1.6rem;margin-bottom:6px}
+.trust-label{font-size:.78rem;font-weight:600;color:#fff;margin-bottom:2px}
+.trust-sub{font-size:.7rem;color:var(--t2)}
+
+/* TESTIMONIALS */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+.tcard{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:1rem}
+.tstars{color:#f59e0b;font-size:.82rem;margin-bottom:7px}
+.ttext{font-size:.83rem;color:var(--t2);line-height:1.55;margin-bottom:9px}
+.tauthor{display:flex;align-items:center;gap:8px}
+.tavatar{width:30px;height:30px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;color:var(--a2);border:1px solid var(--bd)}
+.tname{font-size:.83rem;font-weight:600}
+.tmeta{font-size:.69rem;color:var(--t3)}
+
+/* PRODUCTS PAGE */
+.ptoolbar{display:flex;align-items:center;gap:9px;margin-bottom:1.4rem;flex-wrap:wrap}
+.sfilt{flex:1;min-width:150px;background:var(--bg2);border:1px solid var(--bd);color:#fff;padding:9px 13px;border-radius:7px;font-size:.84rem;outline:none;font-family:inherit}
+.sfilt::placeholder{color:var(--t3)}
+.sfilt:focus{border-color:#555}
+.sel{background:var(--bg2);border:1px solid var(--bd);color:var(--t);padding:8px 11px;border-radius:7px;font-size:.83rem;cursor:pointer;outline:none;font-family:inherit}
+.sel:focus{border-color:#555}
+.rcount{font-size:.8rem;color:var(--t3);margin-left:auto}
+
+/* PRODUCT DETAIL */
+.dpage{padding:1.5rem;max-width:700px;margin:0 auto}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:.83rem;cursor:pointer;margin-bottom:1.4rem;background:none;border:none;transition:color .2s}
+.back-btn:hover{color:#fff}
+.dimg{height:270px;background:var(--bg2);border:1px solid var(--bd);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:6.5rem;margin-bottom:1.4rem}
+.dbrand{font-size:.72rem;color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px}
+.dname{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;letter-spacing:1px;color:#fff;margin-bottom:7px;line-height:1}
+.drating{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
+.dprow{display:flex;align-items:baseline;gap:11px;margin-bottom:1.2rem}
+.dprice{font-size:2rem;font-weight:700;color:var(--a2)}
+.dpold{font-size:1rem;color:var(--t3);text-decoration:line-through}
+.dsave{font-size:.73rem;background:rgba(255,69,0,.15);color:var(--a2);padding:3px 9px;border-radius:20px;font-weight:600}
+.ddesc{font-size:.9rem;color:var(--t2);line-height:1.65;margin-bottom:1.3rem;padding:.9rem;background:var(--bg2);border:1px solid var(--bd);border-radius:7px}
+.opt-label{font-size:.76rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.opt-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.2rem}
+.opill{padding:7px 15px;border:1px solid var(--bd);border-radius:6px;font-size:.83rem;cursor:pointer;color:var(--t2);background:var(--bg2);transition:all .2s}
+.opill:hover{border-color:#555;color:#fff}
+.opill.on{border-color:var(--a2);color:var(--a2);background:rgba(255,69,0,.08)}
+.qty-row{display:flex;align-items:center;gap:11px;margin-bottom:1.4rem}
+.qty-lbl{font-size:.76rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.qctrl{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--bd);border-radius:7px;overflow:hidden}
+.qb{background:none;border:none;color:#fff;width:35px;height:35px;cursor:pointer;font-size:1.05rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.qb:hover{background:var(--bg4)}
+.qn{width:38px;text-align:center;font-size:.92rem;font-weight:600;color:#fff;background:none;border:none;outline:none;font-family:inherit}
+.dactions{display:flex;gap:9px}
+.feat-list{display:flex;flex-direction:column;gap:7px;margin-top:1.4rem}
+.feat-item{display:flex;align-items:flex-start;gap:9px;font-size:.86rem;color:var(--t2);padding:9px;background:var(--bg2);border-radius:7px;border:1px solid var(--bd)}
+.fcheck{color:var(--g);flex-shrink:0}
+
+/* CART */
+.cpage{padding:1.5rem;max-width:660px;margin:0 auto}
+.cempty{text-align:center;padding:4rem 2rem}
+.citems{display:flex;flex-direction:column;gap:9px;margin-bottom:1.4rem}
+.citem{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:13px;display:flex;gap:13px;align-items:center}
+.citem-img{width:62px;height:62px;background:var(--bg3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0}
+.citem-info{flex:1;min-width:0}
+.citem-name{font-size:.9rem;font-weight:600;color:#fff;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.citem-meta{font-size:.74rem;color:var(--t3);margin-bottom:5px}
+.citem-price{font-size:.92rem;font-weight:700;color:var(--a2)}
+.citem-r{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.rm-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:.95rem;padding:3px;transition:color .2s}
+.rm-btn:hover{color:var(--red)}
+.cqty{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--bd);border-radius:6px;overflow:hidden}
+.cqb{background:none;border:none;color:#fff;width:26px;height:26px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.cqb:hover{background:var(--bg4)}
+.cqn{width:30px;text-align:center;font-size:.82rem;font-weight:600;color:#fff;background:none;border:none;outline:none;font-family:inherit}
+.csum{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:1.1rem}
+.csumtitle{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1px;margin-bottom:.9rem}
+.crow{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:7px;color:var(--t2)}
+.crow.total{color:#fff;font-weight:700;font-size:.97rem;border-top:1px solid var(--bd);padding-top:9px;margin-top:5px}
+.coupon-row{display:flex;gap:7px;margin:1rem 0}
+.cinput{flex:1;background:var(--bg3);border:1px solid var(--bd);color:#fff;padding:9px 13px;border-radius:7px;font-size:.84rem;outline:none;font-family:inherit}
+.cinput::placeholder{color:var(--t3)}
+.cinput:focus{border-color:#555}
+
+/* CHECKOUT */
+.chpage{padding:1.5rem;max-width:620px;margin:0 auto}
+.chsteps{display:flex;background:var(--bg2);border:1px solid var(--bd);border-radius:9px;overflow:hidden;margin-bottom:2rem}
+.chstep{flex:1;padding:11px 6px;text-align:center;font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);border-right:1px solid var(--bd)}
+.chstep:last-child{border-right:none}
+.chstep.act{background:rgba(255,69,0,.1);color:var(--a2)}
+.chstep.done{background:rgba(34,197,94,.07);color:var(--g)}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.fg label{font-size:.75rem;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.finput{background:var(--bg2);border:1px solid var(--bd);color:#fff;padding:10px 13px;border-radius:7px;font-size:.88rem;outline:none;transition:border .2s;font-family:inherit;width:100%}
+.finput:focus{border-color:#555}
+.finput::placeholder{color:var(--t3)}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:1.3rem}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--bg2);border:1px solid var(--bd);border-radius:7px;cursor:pointer;transition:border-color .2s}
+.pay-opt:hover{border-color:#555}
+.pay-opt.on{border-color:var(--a2);background:rgba(255,69,0,.05)}
+.pay-opt input[type=radio]{accent-color:var(--a2);width:15px;height:15px}
+.pay-label{font-size:.88rem;font-weight:500}
+.pay-sub{font-size:.73rem;color:var(--t3)}
+.omini{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:.9rem;margin-bottom:1.3rem}
+.omini-row{display:flex;justify-content:space-between;font-size:.83rem;padding:4px 0;border-bottom:1px solid var(--bd)}
+.omini-row:last-child{border-bottom:none}
+.ftitle{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1px;margin-bottom:.9rem;color:#fff}
+
+/* SUCCESS */
+.sucpage{padding:3rem 1.5rem;text-align:center;max-width:460px;margin:0 auto}
+.suc-icon{font-size:4rem;margin-bottom:1rem}
+.suc-title{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:3px;color:var(--g);margin-bottom:7px}
+.suc-sub{font-size:.92rem;color:var(--t2);margin-bottom:1.8rem}
+.oid{background:var(--bg2);border:1px solid var(--bd);border-radius:7px;padding:11px 20px;display:inline-block;font-weight:700;font-size:1.1rem;color:var(--a);letter-spacing:2px;margin-bottom:1.8rem}
+
+/* AUTH */
+.apage{padding:3rem 1.5rem;max-width:410px;margin:0 auto}
+.atitle{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;margin-bottom:.3rem}
+.asub{font-size:.86rem;color:var(--t2);margin-bottom:1.8rem}
+.atoggle{text-align:center;margin-top:1.1rem;font-size:.86rem;color:var(--t2)}
+.atoggle span{color:var(--a2);cursor:pointer;font-weight:600}
+.div{display:flex;align-items:center;gap:11px;margin:1.1rem 0;color:var(--t3);font-size:.78rem}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--bd)}
+.socbtn{width:100%;background:var(--bg2);border:1px solid var(--bd);color:#fff;padding:10px;border-radius:7px;font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:7px;transition:all .2s;font-family:inherit}
+.socbtn:hover{background:var(--bg3);border-color:#444}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:7px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;white-space:nowrap}
+.btn-y{background:var(--a);color:#111}
+.btn-y:hover{background:#dfe826;transform:translateY(-1px)}
+.btn-o{background:var(--a2);color:#fff}
+.btn-o:hover{background:#e03d00;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--t);border:1px solid var(--bd)}
+.btn-ghost:hover{background:var(--bg3);border-color:#444}
+.btn-g{background:var(--g);color:#fff}
+.btn-g:hover{background:#16a34a}
+.btn-wa{background:#25d366;color:#fff}
+.btn-wa:hover{background:#1dbd57}
+.btn-full{width:100%}
+.btn-lg{padding:13px 26px;font-size:.95rem}
+.btn-sm{padding:6px 13px;font-size:.78rem}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--bd);padding:2rem 1.5rem 1rem}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:1.4rem;margin-bottom:1.4rem}
+.fbrand{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;margin-bottom:5px}
+.fbrand em{color:var(--a);font-style:normal}
+.fdesc{font-size:.78rem;color:var(--t3);line-height:1.6}
+.fhd{font-size:.76rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);font-weight:600;margin-bottom:9px}
+.flinks{display:flex;flex-direction:column;gap:6px}
+.flink{font-size:.83rem;color:var(--t2);cursor:pointer;transition:color .2s}
+.flink:hover{color:#fff}
+.fbot{border-top:1px solid var(--bd);padding-top:.9rem;display:flex;justify-content:space-between;font-size:.74rem;color:var(--t3);flex-wrap:wrap;gap:7px}
+
+/* BOTTOM NAV */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,19,.97);backdrop-filter:blur(10px);border-top:1px solid var(--bd);z-index:500;padding:7px 0 9px}
+.bnav-inner{display:flex;justify-content:space-around}
+.bni{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 12px;cursor:pointer;color:var(--t3);transition:color .2s;border:none;background:none;position:relative;font-family:inherit}
+.bni.on{color:var(--a2)}
+.bni-ic{font-size:1.15rem}
+.bni-lb{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.bbadge{position:absolute;top:2px;right:8px;background:var(--a2);color:#fff;font-size:.58rem;font-weight:700;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+@media(max-width:600px){
+  .burger{display:flex}
+  .nav-links{display:none}
+  .bnav{display:block}
+  body{padding-bottom:68px}
+  .pgrid{grid-template-columns:repeat(2,1fr)}
+  .fgrid2{grid-template-columns:1fr}
+  .dactions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="go('home')">IRON<em>FORGE</em></div>
+  <div class="nav-links">
+    <button class="nl on" id="nl-home" onclick="go('home')">Home</button>
+    <button class="nl" id="nl-products" onclick="go('products')">Products</button>
+    <button class="nl" id="nl-login" onclick="go('login')">Account</button>
+  </div>
+  <div class="nav-r">
+    <button class="icon-btn" onclick="openSearch()" title="Search">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+    <button class="cart-btn" onclick="go('cart')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Cart <span class="cbadge hidden" id="cbadge">0</span>
+    </button>
+    <button class="burger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob-menu">
+  <div class="mob-link" onclick="go('home');toggleMenu()">🏠 Home</div>
+  <div class="mob-link" onclick="go('products');toggleMenu()">🛍️ Products</div>
+  <div class="mob-link" onclick="go('cart');toggleMenu()">🛒 Cart</div>
+  <div class="mob-link" onclick="go('login');toggleMenu()">👤 Account</div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div class="sov" id="sov" onclick="closeSov(event)">
+  <div class="sbox" onclick="event.stopPropagation()">
+    <div class="srow">
+      <input type="text" class="sinput" id="sinput" placeholder="Search products…" oninput="doSearch(this.value)">
+      <button class="sclose" onclick="closeSov()">✕</button>
+    </div>
+    <div class="sres" id="sres"></div>
+  </div>
+</div>
+
+<!-- ========== HOME PAGE ========== -->
+<div class="page on" id="page-home">
+  <div class="hero">
+    <div class="hero-pre">🔥 Premium Fitness Gear</div>
+    <h1 class="hero-h">FORGE YOUR<br><span>BEST SELF</span></h1>
+    <p class="hero-sub">Professional gym equipment, premium supplements and expert gear — everything to crush your goals.</p>
+    <div class="hero-btns">
+      <button class="btn btn-y btn-lg" onclick="go('products')">Shop Now →</button>
+      <button class="btn btn-ghost btn-lg" onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})">View Featured</button>
+    </div>
+    <div class="hero-stats">
+      <div style="text-align:center"><div class="hs-num">500+</div><div class="hs-lbl">Products</div></div>
+      <div style="text-align:center"><div class="hs-num">12K+</div><div class="hs-lbl">Customers</div></div>
+      <div style="text-align:center"><div class="hs-num">4.8★</div><div class="hs-lbl">Rating</div></div>
+      <div style="text-align:center"><div class="hs-num">Free</div><div class="hs-lbl">Delivery ₹999+</div></div>
+    </div>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="sec">
+    <div class="sh"><div class="st">Shop by Category</div></div>
+    <div class="cpills" id="home-cats">
+      <div class="cp on" onclick="hFilter('all',this)">All</div>
+      <div class="cp" onclick="hFilter('supplements',this)">💊 Supplements</div>
+      <div class="cp" onclick="hFilter('equipment',this)">🏋️ Equipment</div>
+      <div class="cp" onclick="hFilter('clothing',this)">👕 Clothing</div>
+      <div class="cp" onclick="hFilter('accessories',this)">🎽 Accessories</div>
+    </div>
+  </div>
+
+  <!-- Featured Products -->
+  <div class="sec" id="featured">
+    <div class="sh">
+      <div class="st">Featured Products</div>
+      <div class="sl" onclick="go('products')">View All →</div>
+    </div>
+    <div class="pgrid" id="home-grid"></div>
+  </div>
+
+  <!-- Promo Banner -->
+  <div class="sec">
+    <div class="promo">
+      <div>
+        <h3>🎉 FIRST ORDER OFFER</h3>
+        <p>Get 15% off your first purchase</p>
+        <div class="promo-code">IRONFIT15</div>
+      </div>
+      <button class="btn btn-y" onclick="go('products')">Shop Now</button>
+    </div>
+  </div>
+
+  <!-- Trust Strip -->
+  <div class="sec">
+    <div class="sh"><div class="st">Why IronForge?</div></div>
+    <div class="trust-strip">
+      <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-label">Free Delivery</div><div class="trust-sub">On orders above ₹999</div></div>
+      <div class="trust-item"><div class="trust-icon">✅</div><div class="trust-label">100% Authentic</div><div class="trust-sub">Verified products only</div></div>
+      <div class="trust-item"><div class="trust-icon">🔄</div><div class="trust-label">Easy Returns</div><div class="trust-sub">7-day return policy</div></div>
+      <div class="trust-item"><div class="trust-icon">🔒</div><div class="trust-label">Secure Payments</div><div class="trust-sub">UPI, Card, COD</div></div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="sec">
+    <div class="sh"><div class="st">Customer Reviews</div></div>
+    <div class="tgrid">
+      <div class="tcard"><div class="tstars">★★★★★</div><div class="ttext">"Amazing whey protein! Mixes perfectly and the taste is great. Been ordering for 6 months."</div><div class="tauthor"><div class="tavatar">RK</div><div><div class="tname">Ravi Kumar</div><div class="tmeta">Hyderabad · Verified</div></div></div></div>
+      <div class="tcard"><div class="tstars">★★★★★</div><div class="ttext">"Resistance bands are super durable. Great for home workouts. Fast delivery too!"</div><div class="tauthor"><div class="tavatar">PS</div><div><div class="tname">Priya Sharma</div><div class="tmeta">Bangalore · Verified</div></div></div></div>
+      <div class="tcard"><div class="tstars">★★★★☆</div><div class="ttext">"Good quality gym gloves — comfortable, grippy and long lasting. Will order more!"</div><div class="tauthor"><div class="tavatar">AM</div><div><div class="tname">Arjun M.</div><div class="tmeta">Chennai · Verified</div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PRODUCTS PAGE ========== -->
+<div class="page" id="page-products">
+  <div style="padding:1.5rem">
+    <div class="sh" style="margin-bottom:1rem"><div class="st">All Products</div></div>
+    <div class="ptoolbar">
+      <input type="text" class="sfilt" id="psearch" placeholder="🔍  Search…" oninput="renderProds()">
+      <select class="sel" id="pcat" onchange="renderProds()">
+        <option value="">All Categories</option>
+        <option value="supplements">Supplements</option>
+        <option value="equipment">Equipment</option>
+        <option value="clothing">Clothing</option>
+        <option value="accessories">Accessories</option>
+      </select>
+      <select class="sel" id="psort" onchange="renderProds()">
+        <option value="">Sort: Default</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+        <option value="rating">Top Rated</option>
+        <option value="new">Newest First</option>
+      </select>
+      <span class="rcount" id="rcount"></span>
+    </div>
+    <div class="pgrid" id="prod-grid"></div>
+  </div>
+</div>
+
+<!-- ========== PRODUCT DETAIL PAGE ========== -->
+<div class="page" id="page-detail">
+  <div class="dpage">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Back
+    </button>
+    <div id="detail-inner"></div>
+  </div>
+</div>
+
+<!-- ========== CART PAGE ========== -->
+<div class="page" id="page-cart">
+  <div class="cpage">
+    <div class="st" style="margin-bottom:1.2rem">🛒 Your Cart</div>
+    <div id="cart-inner"></div>
+  </div>
+</div>
+
+<!-- ========== CHECKOUT PAGE ========== -->
+<div class="page" id="page-checkout">
+  <div class="chpage">
+    <div class="st" style="margin-bottom:1.2rem">Checkout</div>
+    <div class="chsteps">
+      <div class="chstep act" id="cs1">Delivery</div>
+      <div class="chstep" id="cs2">Payment</div>
+      <div class="chstep" id="cs3">Review</div>
+    </div>
+    <div id="ch-inner"></div>
+  </div>
+</div>
+
+<!-- ========== SUCCESS PAGE ========== -->
+<div class="page" id="page-success">
+  <div class="sucpage">
+    <div class="suc-icon">🎉</div>
+    <div class="suc-title">Order Placed!</div>
+    <p class="suc-sub">Thank you! Your order is confirmed. You'll receive a WhatsApp update shortly.</p>
+    <div class="oid" id="oid-el">IF-000000</div>
+    <div style="display:flex;flex-direction:column;gap:9px;max-width:290px;margin:0 auto">
+      <button class="btn btn-wa btn-full" onclick="waTrack()">📱 Track on WhatsApp</button>
+      <button class="btn btn-o btn-full" onclick="go('products')">Continue Shopping</button>
+      <button class="btn btn-ghost btn-full" onclick="go('home')">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LOGIN PAGE ========== -->
+<div class="page" id="page-login">
+  <div class="apage"><div id="auth-inner"></div></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fgrid">
+    <div>
+      <div class="fbrand">IRON<em>FORGE</em></div>
+      <div class="fdesc">Premium fitness gear for serious athletes and beginners. Quality you can trust.</div>
+    </div>
+    <div>
+      <div class="fhd">Shop</div>
+      <div class="flinks">
+        <div class="flink" onclick="go('products')">All Products</div>
+        <div class="flink" onclick="setPCat('supplements')">Supplements</div>
+        <div class="flink" onclick="setPCat('equipment')">Equipment</div>
+        <div class="flink" onclick="setPCat('clothing')">Clothing</div>
+      </div>
+    </div>
+    <div>
+      <div class="fhd">Help</div>
+      <div class="flinks">
+        <div class="flink">Shipping Info</div>
+        <div class="flink">Returns Policy</div>
+        <div class="flink">Size Guide</div>
+        <div class="flink">Contact Us</div>
+      </div>
+    </div>
+    <div>
+      <div class="fhd">Contact</div>
+      <div class="flinks">
+        <div class="flink">📞 +91 99664 57329</div>
+        <div class="flink">📍 Hyderabad, Telangana</div>
+        <div class="flink">✉️ ironforge@mail.com</div>
+        <div class="flink" onclick="window.open('https://wa.me/919966457329','_blank')">📱 WhatsApp Orders</div>
+      </div>
+    </div>
+  </div>
+  <div class="fbot">
+    <span>© 2026 IronForge Fitness. All rights reserved.</span>
+    <span>💳 Cards &nbsp;|&nbsp; 📱 UPI &nbsp;|&nbsp; 📦 COD</span>
+  </div>
+</footer>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <button class="bni on" id="bni-home" onclick="go('home')"><span class="bni-ic">🏠</span><span class="bni-lb">Home</span></button>
+    <button class="bni" id="bni-products" onclick="go('products')"><span class="bni-ic">🛍️</span><span class="bni-lb">Shop</span></button>
+    <button class="bni" id="bni-cart" onclick="go('cart')">
+      <span class="bni-ic">🛒</span><span class="bni-lb">Cart</span>
+      <span class="bbadge hidden" id="bbadge">0</span>
+    </button>
+    <button class="bni" id="bni-login" onclick="go('login')"><span class="bni-ic">👤</span><span class="bni-lb">Account</span></button>
+  </div>
+</nav>
+
+<script>
+/* ── DATA ── */
+var PRODS = [
+  {id:1,name:'Whey Protein 2kg',brand:'MuscleBlaze',cat:'supplements',price:2499,old:3200,rating:4.8,rev:312,badge:'sale',em:'💪',desc:'100% whey protein with 24g protein per serving. Chocolate flavour. Fast absorbing post-workout formula. Lab tested for purity and quality.',sizes:['1kg','2kg','4kg'],feats:['24g protein per serving','Low fat & sugar','Added digestive enzymes','Mixes instantly in water'],isNew:false},
+  {id:2,name:'Creatine Monohydrate',brand:'Optimum Nutrition',cat:'supplements',price:999,old:null,rating:4.7,rev:198,badge:'hot',em:'⚡',desc:'Pure micronized creatine monohydrate for strength and power gains. 300g unflavoured. Clinically proven formula for muscle performance.',sizes:['150g','300g','500g'],feats:['Pure micronized form','Unflavoured – mixes in anything','Clinically studied 5g dose','Gluten free & tested'],isNew:false},
+  {id:3,name:'Adjustable Dumbbells Set',brand:'PowerFit',cat:'equipment',price:4999,old:6500,rating:4.9,rev:87,badge:'sale',em:'🏋️',desc:'Space-saving adjustable dumbbells from 5kg to 25kg per dumbbell. Quick-lock system for fast weight changes. Perfect for home gym use.',sizes:['5–25 kg','5–32 kg'],feats:['Quick weight adjustment dial','Compact – saves storage space','Anti-roll handle design','Premium knurled grip'],isNew:false},
+  {id:4,name:'Yoga Mat Premium 6mm',brand:'FitLife',cat:'accessories',price:899,old:null,rating:4.6,rev:241,badge:null,em:'🧘',desc:'6mm thick non-slip yoga mat with alignment guide lines. Eco-friendly TPE material. Perfect for yoga, pilates and floor exercises.',sizes:['6mm','8mm'],feats:['Non-slip texture both sides','Eco-friendly TPE material','183 × 61 cm size','Includes carry strap & bag'],isNew:true},
+  {id:5,name:'Gym Training Gloves',brand:'GripMax',cat:'accessories',price:649,old:899,rating:4.5,rev:156,badge:'sale',em:'🥊',desc:'Padded palm gloves with wrist wrap support. Breathable mesh back panel. Suitable for all weight training exercises.',sizes:['S','M','L','XL'],feats:['Full palm padding','Wrist wrap support','Breathable mesh back','Anti-slip grip surface'],isNew:false},
+  {id:6,name:'Dry-Fit Training Tee',brand:'IronWear',cat:'clothing',price:799,old:null,rating:4.4,rev:203,badge:'new',em:'👕',desc:'Moisture-wicking quick-dry training t-shirt. 4-way stretch fabric allows unrestricted movement. Anti-odour finish. Multiple colours.',sizes:['S','M','L','XL','XXL'],feats:['Moisture-wicking technology','4-way stretch fabric','Quick-dry finish','Anti-odour treatment'],isNew:true},
+  {id:7,name:'Pre-Workout Energy',brand:'MuscleBlaze',cat:'supplements',price:1299,old:1599,rating:4.6,rev:178,badge:'sale',em:'🔥',desc:'High-energy pre-workout with 200mg caffeine, 3.2g beta-alanine, and 6g citrulline. 30 servings. Available in 3 flavours.',sizes:['30 servings','60 servings'],feats:['200mg caffeine per serve','Beta-alanine 3.2g','L-Citrulline 6g','No proprietary blends'],isNew:false},
+  {id:8,name:'Resistance Band Set (5pcs)',brand:'FlexBand',cat:'accessories',price:599,old:null,rating:4.7,rev:320,badge:'hot',em:'🎗️',desc:'Set of 5 resistance bands from 5–40 lbs. Ideal for stretching, rehab, and strength training. Includes exercise guide.',sizes:['5-piece set'],feats:['5 resistance levels','Premium natural latex','Lightweight & portable','Exercise guide included'],isNew:false},
+  {id:9,name:'Compression Shorts',brand:'IronWear',cat:'clothing',price:999,old:1299,rating:4.5,rev:134,badge:'sale',em:'🩳',desc:'High-performance compression shorts for maximum support. Flatlock seams to prevent chafing. Wide supportive waistband.',sizes:['S','M','L','XL'],feats:['4-way stretch fabric','Moisture-wicking','Flatlock seam stitching','Wide compression waistband'],isNew:false},
+  {id:10,name:'Doorway Pull-Up Bar',brand:'PowerFit',cat:'equipment',price:1499,old:null,rating:4.8,rev:95,badge:'new',em:'🚪',desc:'No-drill doorway pull-up bar. Supports up to 150kg. Fits standard doors 62–100cm wide. Multiple grip positions included.',sizes:['Standard'],feats:['No screws or drilling','Fits 62–100cm door frames','Holds up to 150kg','4 different grip positions'],isNew:true},
+  {id:11,name:'Shaker Bottle 700ml',brand:'FitLife',cat:'accessories',price:349,old:499,rating:4.3,rev:450,badge:'sale',em:'🥤',desc:'Leak-proof protein shaker with BlenderBall wire whisk. BPA-free plastic. Dishwasher safe. Great for pre and post workout.',sizes:['500ml','700ml'],feats:['BlenderBall wire whisk','Leak-proof screw lid','100% BPA-free plastic','Dishwasher safe'],isNew:false},
+  {id:12,name:'Foam Roller 60cm',brand:'RecoverPro',cat:'accessories',price:799,old:null,rating:4.6,rev:112,badge:null,em:'🔵',desc:'High-density EPP foam roller for myofascial release and muscle recovery. Textured surface for deep tissue massage.',sizes:['30cm','60cm','90cm'],feats:['High-density EPP core','Textured massage surface','Supports up to 135kg','Hollow for easy storage'],isNew:false}
+];
+
+var COUPONS = {IRONFIT15:{disc:15,type:'pct',lbl:'15% off'},SAVE100:{disc:100,type:'flat',lbl:'₹100 off'},NEWUSER:{disc:20,type:'pct',lbl:'20% off'},FIT50:{disc:50,type:'flat',lbl:'₹50 off'}};
+
+var cart = JSON.parse(localStorage.getItem('_if_cart') || '[]');
+var user  = JSON.parse(localStorage.getItem('_if_user') || 'null');
+var curPage = 'home', prevPage = 'home';
+var detailId = null, dQty = 1, dSize = {};
+var chStep = 1, chData = {}, coupon = null, showReg = false;
+
+/* ── UTILS ── */
+function sc(){ localStorage.setItem('_if_cart', JSON.stringify(cart)); }
+function fmt(n){ return '₹' + n.toLocaleString('en-IN'); }
+function stars(r){ return Array.from({length:5},(_,i)=>i<Math.round(r)?'★':'☆').join(''); }
+function toast(msg, type){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + (type||'');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.className='', 2400);
+}
+function $$(id){ return document.getElementById(id); }
+
+/* ── NAVIGATION ── */
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nl').forEach(l=>l.classList.remove('on'));
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('on'));
+  prevPage = curPage; curPage = name;
+  $$('page-'+name).classList.add('on');
+  var nl = $$('nl-'+name); if(nl) nl.classList.add('on');
+  var bn = $$('bni-'+name); if(bn) bn.classList.add('on');
+  window.scrollTo(0,0);
+  if(name==='products') renderProds();
+  if(name==='cart') renderCart();
+  if(name==='checkout'){ chStep=1; renderCheckout(); }
+  if(name==='login') renderAuth();
+}
+function goBack(){ go(prevPage==='detail'?'products':prevPage); }
+function setPCat(cat){ $$('pcat').value=cat; go('products'); }
+function toggleMenu(){ $$('mob-menu').classList.toggle('open'); }
+
+/* ── SEARCH ── */
+function openSearch(){
+  $$('sov').classList.add('open');
+  setTimeout(()=>$$('sinput').focus(), 80);
+}
+function closeSov(e){
+  if(!e || e.target===$$('sov')) $$('sov').classList.remove('open');
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSov(); });
+function doSearch(q){
+  var res = $$('sres');
+  if(!q.trim()){ res.innerHTML=''; return; }
+  var m = PRODS.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()) || p.brand.toLowerCase().includes(q.toLowerCase()));
+  if(!m.length){ res.innerHTML='<div style="text-align:center;padding:1rem;color:var(--t3);font-size:.83rem">No results found</div>'; return; }
+  res.innerHTML = m.slice(0,6).map(p=>`
+    <div class="sitem" onclick="closeSov();openDetail(${p.id})">
+      <div class="simg">${p.em}</div>
+      <div><div class="sitem-name">${p.name}</div><div class="sitem-price">${fmt(p.price)}</div></div>
+    </div>`).join('');
+}
+
+/* ── CART COUNT ── */
+function updCartCount(){
+  var n = cart.reduce((s,i)=>s+i.qty, 0);
+  var cb = $$('cbadge'), bb = $$('bbadge');
+  if(n>0){ cb.textContent=n; cb.classList.remove('hidden'); bb.textContent=n; bb.classList.remove('hidden'); }
+  else { cb.classList.add('hidden'); bb.classList.add('hidden'); }
+}
+
+/* ── ADD TO CART ── */
+function addToCart(id, qty, size){
+  var p = PRODS.find(x=>x.id===id); if(!p) return;
+  qty = qty||1; size = size || (p.sizes?p.sizes[0]:'');
+  var ex = cart.find(i=>i.id===id && i.size===size);
+  if(ex) ex.qty += qty;
+  else cart.push({id,qty,size,name:p.name,price:p.price,em:p.em,brand:p.brand});
+  sc(); updCartCount(); toast('✓ Added to cart!','ok');
+}
+
+/* ── HOME PRODUCT RENDER ── */
+function hFilter(cat, el){
+  document.querySelectorAll('#home-cats .cp').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on'); renderHomeProds(cat);
+}
+function renderHomeProds(cat){
+  var list = cat==='all' ? PRODS : PRODS.filter(p=>p.cat===cat);
+  $$('home-grid').innerHTML = list.slice(0,8).map(prodCard).join('');
+}
+
+/* ── PRODUCTS PAGE ── */
+function renderProds(){
+  var q = ($$('psearch').value||'').toLowerCase();
+  var cat = $$('pcat').value;
+  var sort = $$('psort').value;
+  var list = PRODS.filter(p=>(!q||p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q))&&(!cat||p.cat===cat));
+  if(sort==='price-asc') list.sort((a,b)=>a.price-b.price);
+  else if(sort==='price-desc') list.sort((a,b)=>b.price-a.price);
+  else if(sort==='rating') list.sort((a,b)=>b.rating-a.rating);
+  else if(sort==='new') list = [...list.filter(p=>p.isNew),...list.filter(p=>!p.isNew)];
+  $$('rcount').textContent = list.length + ' products';
+  var g = $$('prod-grid');
+  if(!list.length){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--t3)"><div style="font-size:3rem;margin-bottom:.8rem">🔍</div><div>No products found</div></div>'; return; }
+  g.innerHTML = list.map(prodCard).join('');
+}
+
+function prodCard(p){
+  var badge = p.badge ? `<span class="pbadge b${p.badge[0]}">${p.badge}</span>` : '';
+  var oldp  = p.old   ? `<span class="pp-old">${fmt(p.old)}</span>` : '';
+  return `<div class="pcard" onclick="openDetail(${p.id})">
+    <div class="pcard-img">${p.em}${badge}</div>
+    <div class="pcard-body">
+      <div class="pbrand">${p.brand}</div>
+      <div class="pname">${p.name}</div>
+      <div class="prating"><span class="pstars">${stars(p.rating)}</span><span class="prc">(${p.rev})</span></div>
+      <div class="pprow"><span class="pp">${fmt(p.price)}</span>${oldp}</div>
+      <button class="padd" onclick="event.stopPropagation();addToCart(${p.id})">+ Add to Cart</button>
+    </div></div>`;
+}
+
+/* ── PRODUCT DETAIL ── */
+function openDetail(id){
+  detailId=id; dQty=1; dSize[id]=null;
+  var p = PRODS.find(x=>x.id===id); if(!p) return;
+  if(p.sizes) dSize[id]=p.sizes[0];
+  var badge  = p.badge ? `<span class="pbadge b${p.badge[0]}" style="position:static;display:inline-block;margin-bottom:8px">${p.badge}</span>` : '';
+  var oldp   = p.old  ? `<span class="dpold">${fmt(p.old)}</span>` : '';
+  var savePct= p.old  ? `<span class="dsave">Save ${Math.round((1-p.price/p.old)*100)}%</span>` : '';
+  var spills = p.sizes ? p.sizes.map((s,i)=>`<div class="opill${i===0?' on':''}" onclick="selSize(this,'${s}')" data-s="${s}">${s}</div>`).join('') : '';
+  var feats  = (p.feats||[]).map(f=>`<div class="feat-item"><span class="fcheck">✓</span><span>${f}</span></div>`).join('');
+  $$('detail-inner').innerHTML = `
+    <div class="dimg">${p.em}</div>
+    <div class="dbrand">${p.brand} · ${p.cat}</div>
+    ${badge ? '<div>'+badge+'</div>' : ''}
+    <div class="dname">${p.name}</div>
+    <div class="drating"><span style="color:#f59e0b;font-size:1rem">${stars(p.rating)}</span>&nbsp;<span style="font-size:.84rem;color:var(--t2)">${p.rating} (${p.rev} reviews)</span></div>
+    <div class="dprow"><span class="dprice">${fmt(p.price)}</span>${oldp}${savePct}</div>
+    <div class="ddesc">${p.desc}</div>
+    ${p.sizes?`<div class="opt-label">Select Option</div><div class="opt-pills" id="szpills">${spills}</div>`:''}
+    <div class="qty-row">
+      <span class="qty-lbl">Qty</span>
+      <div class="qctrl"><button class="qb" onclick="chgQty(-1)">−</button><span class="qn" id="dqn">1</span><button class="qb" onclick="chgQty(1)">+</button></div>
+    </div>
+    <div class="dactions">
+      <button class="btn btn-o btn-lg" style="flex:1" onclick="addDetailCart()">🛒 Add to Cart</button>
+      <button class="btn btn-wa" onclick="waOrder(${p.id})" title="Order via WhatsApp">📱</button>
+    </div>
+    <div style="margin-top:1.4rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1px;margin-bottom:9px">Key Features</div>
+      <div class="feat-list">${feats}</div>
+    </div>`;
+  prevPage = curPage; go('detail');
+}
+function selSize(el, s){
+  document.querySelectorAll('#szpills .opill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on'); dSize[detailId]=s;
+}
+function chgQty(d){ dQty=Math.max(1,dQty+d); $$('dqn').textContent=dQty; }
+function addDetailCart(){ addToCart(detailId,dQty,dSize[detailId]); }
+function waOrder(id){
+  var p=PRODS.find(x=>x.id===id); if(!p) return;
+  window.open('https://wa.me/919966457329?text='+encodeURIComponent('Hi! I want to order *'+p.name+'* ('+fmt(p.price)+'). Please confirm.'),'_blank');
+}
+
+/* ── CART ── */
+function renderCart(){
+  var el = $$('cart-inner');
+  if(!cart.length){
+    el.innerHTML = `<div class="cempty">
+      <div style="font-size:4rem;opacity:.35;margin-bottom:1rem">🛒</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;margin-bottom:8px">Cart is Empty</div>
+      <p style="color:var(--t2);margin-bottom:1.4rem">Add some products to get started!</p>
+      <button class="btn btn-o" onclick="go('products')">Browse Products</button></div>`;
+    return;
+  }
+  var sub  = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  var disc = 0, couponHtml = '';
+  if(coupon){ var c=COUPONS[coupon]; disc=c.type==='pct'?Math.round(sub*c.disc/100):c.disc; couponHtml=`<div style="display:flex;justify-content:space-between;font-size:.84rem;color:var(--g);margin-bottom:7px"><span>🎉 Coupon (${coupon})</span><span>-${fmt(disc)}</span></div>`; }
+  var del  = sub>=999 ? 0 : 99;
+  var tot  = sub - disc + del;
+  var items = cart.map((it,i)=>`
+    <div class="citem">
+      <div class="citem-img">${it.em}</div>
+      <div class="citem-info">
+        <div class="citem-name">${it.name}</div>
+        <div class="citem-meta">${it.size?it.size+' · ':''}${it.brand}</div>
+        <div class="citem-price">${fmt(it.price*it.qty)}</div>
+      </div>
+      <div class="citem-r">
+        <button class="rm-btn" onclick="rmCart(${i})" title="Remove">✕</button>
+        <div class="cqty">
+          <button class="cqb" onclick="updQty(${i},-1)">−</button>
+          <span class="cqn">${it.qty}</span>
+          <button class="cqb" onclick="updQty(${i},1)">+</button>
+        </div>
+      </div>
+    </div>`).join('');
+  el.innerHTML = `
+    <div class="citems">${items}</div>
+    <div class="csum">
+      <div class="csumtitle">Order Summary</div>
+      <div class="coupon-row">
+        <input type="text" class="cinput" id="cpn-in" placeholder="Enter coupon code" value="${coupon||''}">
+        <button class="btn btn-ghost btn-sm" onclick="applyCP()">Apply</button>
+      </div>
+      ${couponHtml}
+      <div class="crow"><span>Subtotal (${cart.reduce((s,i)=>s+i.qty,0)} items)</span><span>${fmt(sub)}</span></div>
+      <div class="crow"><span>Delivery</span><span>${del===0?'<span style="color:var(--g)">FREE</span>':fmt(del)}</span></div>
+      <div class="crow total"><span>Total</span><span>${fmt(tot)}</span></div>
+      ${sub<999?`<p style="font-size:.73rem;color:var(--t3);margin-top:5px">Add ${fmt(999-sub)} more for free delivery</p>`:''}
+      <button class="btn btn-o btn-full btn-lg" style="margin-top:1rem" onclick="go('checkout')">Proceed to Checkout →</button>
+      <button class="btn btn-wa btn-full" style="margin-top:8px" onclick="cartWA()">📱 Order via WhatsApp</button>
+    </div>`;
+}
+function rmCart(i){ cart.splice(i,1); sc(); updCartCount(); renderCart(); toast('Removed',''); }
+function updQty(i,d){ cart[i].qty=Math.max(1,cart[i].qty+d); sc(); updCartCount(); renderCart(); }
+function applyCP(){
+  var code = ($$('cpn-in').value||'').trim().toUpperCase();
+  if(COUPONS[code]){ coupon=code; toast('✓ Coupon applied! '+COUPONS[code].lbl,'ok'); renderCart(); }
+  else toast('Invalid coupon code','err');
+}
+function cartWA(){
+  var lines = cart.map(i=>i.qty+'× '+i.name+' ('+fmt(i.price)+')');
+  window.open('https://wa.me/919966457329?text='+encodeURIComponent('Hi IronForge! I want to order:\n'+lines.join('\n')+'\n\nPlease confirm.'),'_blank');
+}
+
+/* ── CHECKOUT ── */
+function renderCheckout(){
+  ['cs1','cs2','cs3'].forEach((id,i)=>{
+    var el=$$( id); el.className='chstep'+(i+1===chStep?' act':chStep>i+1?' done':'');
+  });
+  var sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  var disc=0; if(coupon){var c=COUPONS[coupon];disc=c.type==='pct'?Math.round(sub*c.disc/100):c.disc;}
+  var del=sub>=999?0:99, tot=sub-disc+del;
+  var mini=cart.map(i=>`<div class="omini-row"><span style="color:var(--t2)">${i.qty}× ${i.name}</span><span style="font-weight:600">${fmt(i.price*i.qty)}</span></div>`).join('');
+  var summary=`<div class="omini">${mini}<div class="omini-row" style="font-weight:700;color:var(--a2)"><span>Total</span><span>${fmt(tot)}</span></div></div>`;
+  var d=chData, html='';
+  if(chStep===1){
+    html=summary+`
+      <div class="ftitle">Delivery Details</div>
+      <div class="fgrid2">
+        <div class="fg"><label>First Name *</label><input class="finput" id="ff" placeholder="Ravi" value="${d.fn||''}"></div>
+        <div class="fg"><label>Last Name</label><input class="finput" id="fl" placeholder="Kumar" value="${d.ln||''}"></div>
+      </div>
+      <div class="fg"><label>Phone *</label><input class="finput" id="fph" placeholder="+91 98765 43210" value="${d.ph||''}"></div>
+      <div class="fg"><label>Email</label><input class="finput" id="fem" type="email" placeholder="ravi@email.com" value="${d.em||''}"></div>
+      <div class="fg"><label>Address *</label><input class="finput" id="fa1" placeholder="Flat / House no, Street name" value="${d.a1||''}"></div>
+      <div class="fg"><label>Landmark (optional)</label><input class="finput" id="fa2" placeholder="Near landmark" value="${d.a2||''}"></div>
+      <div class="fgrid2">
+        <div class="fg"><label>City *</label><input class="finput" id="fci" placeholder="Hyderabad" value="${d.ci||''}"></div>
+        <div class="fg"><label>Pincode *</label><input class="finput" id="fpi" placeholder="500085" value="${d.pi||''}"></div>
+      </div>
+      <div class="fg"><label>State</label>
+        <select class="finput" id="fst">
+          <option>Telangana</option><option>Andhra Pradesh</option><option>Karnataka</option>
+          <option>Maharashtra</option><option>Tamil Nadu</option><option>Delhi</option><option>Other</option>
+        </select>
+      </div>
+      <button class="btn btn-o btn-full btn-lg" style="margin-top:1rem" onclick="chNext()">Continue to Payment →</button>`;
+  } else if(chStep===2){
+    html=summary+`
+      <div class="ftitle">Payment Method</div>
+      <div class="pay-opts">
+        <label class="pay-opt on" id="pm-cod"><input type="radio" name="pm" value="cod" checked onchange="selPay('cod')"> <span style="font-size:1.2rem">💵</span> <div><div class="pay-label">Cash on Delivery</div><div class="pay-sub">Pay when order arrives</div></div></label>
+        <label class="pay-opt" id="pm-upi"><input type="radio" name="pm" value="upi" onchange="selPay('upi')"> <span style="font-size:1.2rem">📱</span> <div><div class="pay-label">UPI / Google Pay</div><div class="pay-sub">PhonePe, GPay, Paytm, BHIM</div></div></label>
+        <label class="pay-opt" id="pm-card"><input type="radio" name="pm" value="card" onchange="selPay('card')"> <span style="font-size:1.2rem">💳</span> <div><div class="pay-label">Debit / Credit Card</div><div class="pay-sub">Visa, Mastercard, RuPay</div></div></label>
+        <label class="pay-opt" id="pm-nb"><input type="radio" name="pm" value="nb" onchange="selPay('nb')"> <span style="font-size:1.2rem">🏦</span> <div><div class="pay-label">Net Banking</div><div class="pay-sub">All major banks supported</div></div></label>
+      </div>
+      <div id="pay-extra"></div>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-ghost" onclick="chStep=1;renderCheckout()">← Back</button>
+        <button class="btn btn-o" style="flex:1" onclick="chNext()">Review Order →</button>
+      </div>`;
+  } else {
+    var pmLbl={cod:'Cash on Delivery',upi:'UPI / Google Pay',card:'Debit/Credit Card',nb:'Net Banking'};
+    html=`
+      <div class="ftitle">Review Order</div>
+      <div class="omini">${mini}
+        <div class="omini-row"><span style="color:var(--t2)">Delivery</span><span>${del===0?'FREE':fmt(del)}</span></div>
+        ${disc?`<div class="omini-row" style="color:var(--g)"><span>Discount</span><span>-${fmt(disc)}</span></div>`:''}
+        <div class="omini-row" style="font-size:1rem;font-weight:700;color:var(--a2)"><span>Total</span><span>${fmt(tot)}</span></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:.9rem;margin-bottom:1.2rem;font-size:.86rem">
+        <div style="font-weight:600;margin-bottom:5px;color:#fff">📦 Delivering to:</div>
+        <div style="color:var(--t2)">${d.fn||'Customer'} ${d.ln||''}<br>${d.a1||''}${d.a2?', '+d.a2:''}, ${d.ci||''} ${d.pi||''}<br>📞 ${d.ph||''} &nbsp;·&nbsp; ${pmLbl[d.pay||'cod']}</div>
+      </div>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-ghost" onclick="chStep=2;renderCheckout()">← Back</button>
+        <button class="btn btn-g" style="flex:1;padding:13px;font-size:.95rem" onclick="placeOrder()">✓ Place Order</button>
+      </div>`;
+  }
+  $$('ch-inner').innerHTML = html;
+}
+function selPay(v){
+  ['cod','upi','card','nb'].forEach(p=>{var el=$$('pm-'+p);if(el)el.classList.remove('on');});
+  var sel=$$('pm-'+v); if(sel) sel.classList.add('on');
+  chData.pay=v;
+  var ex=$$('pay-extra');
+  if(v==='upi') ex.innerHTML='<div class="fg" style="margin-bottom:1rem"><label>UPI ID</label><input class="finput" placeholder="yourname@upi"></div>';
+  else if(v==='card') ex.innerHTML='<div class="fg" style="margin-bottom:9px"><label>Card Number</label><input class="finput" placeholder="1234 5678 9012 3456"></div><div class="fgrid2" style="margin-bottom:9px"><div class="fg"><label>Expiry</label><input class="finput" placeholder="MM/YY"></div><div class="fg"><label>CVV</label><input class="finput" placeholder="123" maxlength="3"></div></div><div class="fg" style="margin-bottom:1rem"><label>Name on Card</label><input class="finput" placeholder="RAVI KUMAR"></div>';
+  else ex.innerHTML='';
+}
+function chNext(){
+  if(chStep===1){
+    var fn=$$('ff').value.trim(),ph=$$('fph').value.trim(),a1=$$('fa1').value.trim(),ci=$$('fci').value.trim(),pi=$$('fpi').value.trim();
+    if(!fn||!ph||!a1||!ci||!pi){toast('Please fill all required fields','err');return;}
+    chData.fn=fn;chData.ln=$$('fl').value.trim();chData.ph=ph;chData.em=$$('fem').value.trim();
+    chData.a1=a1;chData.a2=$$('fa2').value.trim();chData.ci=ci;chData.pi=pi;chData.st=$$('fst').value;
+    chStep=2;
+  } else if(chStep===2){
+    if(!chData.pay) chData.pay='cod'; chStep=3;
+  }
+  renderCheckout();
+}
+function placeOrder(){
+  var oid='IF-'+Math.floor(100000+Math.random()*900000);
+  $$('oid-el').textContent=oid;
+  cart=[]; sc(); updCartCount(); coupon=null; go('success');
+}
+function waTrack(){
+  var d=chData, oid=$$('oid-el').textContent;
+  window.open('https://wa.me/919966457329?text='+encodeURIComponent('Hi! My order '+oid+' is placed. Name: '+(d.fn||'')+'. Phone: '+(d.ph||'')),'_blank');
+}
+
+/* ── AUTH ── */
+function renderAuth(){
+  var el=$$('auth-inner');
+  if(user){
+    el.innerHTML=`
+      <div class="atitle">Hello, ${user.name}! 👋</div>
+      <p style="color:var(--t2);margin-bottom:1.4rem;font-size:.88rem">${user.email}</p>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:1rem;margin-bottom:1rem">
+        <div style="font-weight:600;margin-bottom:10px;color:#fff">Account Menu</div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div class="flink" style="padding:11px 0;border-bottom:1px solid var(--bd)">📦 My Orders</div>
+          <div class="flink" style="padding:11px 0;border-bottom:1px solid var(--bd)">📍 Saved Addresses</div>
+          <div class="flink" style="padding:11px 0">⚙️ Account Settings</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-full" onclick="doLogout()">Logout</button>`;
+    return;
+  }
+  if(showReg){
+    el.innerHTML=`
+      <div class="atitle">Create Account</div>
+      <div class="asub">Join IronForge for exclusive deals</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div class="fg"><label>Full Name *</label><input class="finput" id="rn" placeholder="Ravi Kumar"></div>
+        <div class="fg"><label>Email *</label><input class="finput" id="re" type="email" placeholder="ravi@email.com"></div>
+        <div class="fg"><label>Phone</label><input class="finput" id="rp" placeholder="+91 98765 43210"></div>
+        <div class="fg"><label>Password * (min 8 chars)</label><input class="finput" id="rw" type="password" placeholder="Create password"></div>
+      </div>
+      <button class="btn btn-o btn-full btn-lg" style="margin-top:1rem" onclick="doRegister()">Create Account</button>
+      <div class="div">or</div>
+      <button class="socbtn" onclick="socialLogin('Google')">🔍 Continue with Google</button>
+      <div class="atoggle">Already have an account? <span onclick="showReg=false;renderAuth()">Sign In</span></div>`;
+  } else {
+    el.innerHTML=`
+      <div class="atitle">Welcome Back</div>
+      <div class="asub">Sign in to your IronForge account</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:1rem">
+        <div class="fg"><label>Email</label><input class="finput" id="le" type="email" placeholder="ravi@email.com"></div>
+        <div class="fg"><label>Password</label><input class="finput" id="lw" type="password" placeholder="Your password"></div>
+      </div>
+      <button class="btn btn-o btn-full btn-lg" onclick="doLogin()">Sign In</button>
+      <div class="div">or</div>
+      <button class="socbtn" onclick="socialLogin('Google')">🔍 Continue with Google</button>
+      <button class="socbtn" onclick="socialLogin('Facebook')">📘 Continue with Facebook</button>
+      <div class="atoggle">New to IronForge? <span onclick="showReg=true;renderAuth()">Create account</span></div>`;
+  }
+}
+function doLogin(){
+  var e=$$('le').value.trim(), w=$$('lw').value;
+  if(!e||!w){toast('Please fill all fields','err');return;}
+  if(!e.includes('@')){toast('Invalid email','err');return;}
+  var n=e.split('@')[0]; n=n[0].toUpperCase()+n.slice(1);
+  user={name:n,email:e}; localStorage.setItem('_if_user',JSON.stringify(user));
+  toast('✓ Welcome back, '+n+'!','ok'); renderAuth();
+}
+function doRegister(){
+  var n=$$('rn').value.trim(),e=$$('re').value.trim(),w=$$('rw').value;
+  if(!n||!e||!w){toast('Please fill all required fields','err');return;}
+  if(!e.includes('@')){toast('Invalid email','err');return;}
+  if(w.length<8){toast('Password must be 8+ characters','err');return;}
+  user={name:n,email:e}; localStorage.setItem('_if_user',JSON.stringify(user));
+  toast('✓ Account created! Welcome, '+n+'!','ok'); renderAuth();
+}
+function socialLogin(p){ user={name:'IronForge User',email:'user@'+p.toLowerCase()+'.com'}; localStorage.setItem('_if_user',JSON.stringify(user)); toast('✓ Signed in with '+p,'ok'); renderAuth(); }
+function doLogout(){ user=null; localStorage.removeItem('_if_user'); toast('Logged out',''); showReg=false; renderAuth(); }
+
+/* ── INIT ── */
+renderHomeProds('all');
+updCartCount();
+</script>
+</body>
+</html>
